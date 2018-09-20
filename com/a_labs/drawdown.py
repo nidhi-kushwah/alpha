@@ -1,5 +1,6 @@
 """
     __author__ = "Nidhi Kushwah"
+    __date   : 19-09-2018
     __copyright__ = "Copyright 2007, The AL Assignment"
     __license__ = "Free Usage"
     __version__ = "1.0.0"
@@ -11,83 +12,81 @@ class DrawDownCalculator():
 
     def find_drawdown(self, array, number_of_drawdowns):
         """
-            Finds drawdowns, sorts them and returns number of drawdowns
+        Find drawdowns in the form of V, sorts them and returns drawdown start index, end index, duration and recovery time in addition to the n largest drawdowns.
         """
         drawdown_list = list()
-        i=0
-        # To begin with set high
-        if array[i] < array [i+1]:
-            high = array[i+1]
-        else:
-            high = array[i]
-
-        # Iterate
-        trough_location = i+1
-        while trough_location < len(array)-1:
-            high, peak_location = self.__find_peaks_along_the_way(array, high, trough_location)
-            low, new_high, trough_location = self.__find_troughs_along_the_way(array, high, peak_location)
-            drawdown_list.append(high-low)
-            # print("Drawdown: ", high - low)
-            high = new_high
-            if high == low:
-                print("Drawdown doesn't exist ", high - low)
-        drawdown_list.sort(reverse=True)
+        if sorted(array) == array:
+            return []
+        search_from_location = 0
+        current_index = array[search_from_location]
+        while search_from_location < len(array)-1:
+            if array[search_from_location] > array[search_from_location+1]:
+                ## It is Falling Rising type V->
+                lowest_location_tuple = self.find_lowest_trough_until_next_rise(array, current_index, search_from_location)
+                lowest = lowest_location_tuple[0]
+                lowest_location = lowest_location_tuple[1]
+                highest, highest_location = self.find_highest_until_next_fall(array, current_index, lowest_location)
+                v_completed = True
+                if v_completed:
+                    drawdown_list.append((current_index-lowest,search_from_location, highest_location,highest_location-search_from_location, highest_location-lowest_location))
+                    current_index = highest
+                    search_from_location = highest_location
+            else:
+                ## It is Rising Falling Rising type N ->
+                # find the peak
+                highest_tuple = self.find_highest_until_next_fall(array, current_index, search_from_location)
+                highest1 = highest_tuple[0]
+                highest_location1 = highest_tuple[1]
+                lowest, lowest_location = self.find_lowest_trough_until_next_rise(array, highest1, highest_location1)
+                highest_tuple = self.find_highest_until_next_fall(array, current_index, lowest_location)
+                highest2 = highest_tuple[0]
+                highest_location2 = highest_tuple[1]
+                v_completed = True
+                if v_completed:
+                    drawdown_list.append((highest1-lowest, highest_location1, highest_location2, highest_location2 -highest_location1, highest_location2-lowest_location))
+                    current_index = highest2
+                    search_from_location = highest_location2
+        drawdown_list = sorted(drawdown_list, key=lambda x: x[0], reverse=True)
         return drawdown_list[:number_of_drawdowns]
 
-    def __find_highest_along_the_way(self, array, current, tracker):
-        """
-            Finds highest value index untile the next fall happens
-        """
-        for index in range(tracker + 1, len(array)):
-            element = array[index]
-            if element >= current:
-                current = element
-            else:
-                return current, tracker
-        return current, tracker
+    def find_highest_until_next_fall(self, array, current_high, search_from_location):
+        list_of_highs = list()
+        tracker = search_from_location+1
+        for tracker in range(search_from_location+1, len(array)):
+            if (tracker == len(array)):
+                break
+            element = array[tracker]
+            if element > current_high:
+                current_high = element
+                list_of_highs.append((element, tracker))
+            elif element < current_high:
+                return self.__get_maximum(list_of_highs)
+        if tracker+1 == len(array):
+            print("{} is the final element".format(array[search_from_location+1]))
+            return self.__get_maximum(list_of_highs)
 
-    def __find_troughs_along_the_way(self,array, current, current_loc):
-        """
-            Finds lowest value index until the next rise happens
-        """
-        list_of_elements = list()
-        for tracker in range(current_loc + 1, len(array)):
+
+    def find_lowest_trough_until_next_rise(self, array, current, search_from_location):
+        list_of_lows = list()
+        for tracker in range(search_from_location+1, len(array)):
             element = array[tracker]
             if element < current:
-                list_of_elements.append(element)
+                list_of_lows.append((element,tracker))
             elif element > current:
-                current, loc = self.__find_highest_along_the_way(array, element, tracker)
-                minimum = self.__get_minimum(list_of_elements)
-                return minimum, current, loc
-        return current, current, current_loc
-
-
-    def __find_peaks_along_the_way(self, array, high, current_loc):
-        """
-            Tries to progressively find the peaks until the index starts to fall
-        """   
-        for tracker in range(current_loc + 1, len(array)):
-            element = array[tracker]
-            if element > high:
-                high = array[tracker]
-            else:
-                return high, tracker-1
-            position = tracker
-        return high, position
+                return self.__get_minimum(list_of_lows)
 
     def __get_minimum(self, indiceslist):
         """
             Returns minimum in the list
         """
-        lowest = indiceslist[0]
-        for element in indiceslist:
-            if lowest > element:
-                lowest = element
+        sorted_list = sorted(indiceslist, key=lambda x: x[0])
+        lowest = sorted_list[0]
         return lowest
 
-    # def __get_maximum(self, indiceslist):
-    #     highest = indiceslist[0]
-    #     for element in indiceslist:
-    #         if highest < element:
-    #             highest = element
-    #     return highest
+    def __get_maximum(self, indiceslist):
+        """
+            Returns maximum in the list
+        """
+        sorted_list = sorted(indiceslist, key=lambda x: x[0], reverse=True)
+        highest = sorted_list[0]
+        return highest
