@@ -13,6 +13,9 @@ import zmq
 class Publisher():
 
     def __init__(self):
+        """
+        Initialize ctx, port, socket
+        """
         # TODO: Read from config
         self.port = "5556"
         self.context = zmq.Context()
@@ -20,4 +23,10 @@ class Publisher():
         self.socket.bind("tcp://*:%s" % self.port)
 
     def publish_message(self, topic, record):
+        """
+        Publish the string msg to Socket
+        :param topic:
+        :param record:
+        :return:
+        """
         self.socket.send_string("%s %s" % (topic, str(record)))

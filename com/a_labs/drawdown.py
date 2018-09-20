@@ -50,6 +50,13 @@ class DrawDownCalculator():
         return drawdown_list[:number_of_drawdowns]
 
     def find_highest_peak_until_next_fall(self, array, current_high, search_from_location):
+        """
+        Find_highest_peak_until_next_fall
+        :param array:
+        :param current_high:
+        :param search_from_location:
+        :return:
+        """
         list_of_highs = list()
         tracker = search_from_location+1
         for tracker in range(search_from_location+1, len(array)):
@@ -67,6 +74,13 @@ class DrawDownCalculator():
 
 
     def find_lowest_trough_until_next_rise(self, array, current, search_from_location):
+        """
+        Find_lowest_trough_until_next_rise
+        :param array:
+        :param current:
+        :param search_from_location:
+        :return:
+        """
         list_of_lows = list()
         for tracker in range(search_from_location+1, len(array)):
             element = array[tracker]
@@ -77,16 +91,16 @@ class DrawDownCalculator():
 
     def __get_minimum(self, indiceslist):
         """
-            Returns minimum in the list
+            Returns minimum tuple in the list
         """
-        sorted_list = sorted(indiceslist, key=lambda x: x[0])
+        sorted_list = sorted(indiceslist, key=lambda x: x[0]) # First element is the minimum drawdown
         lowest = sorted_list[0]
         return lowest
 
     def __get_maximum(self, indiceslist):
         """
-            Returns maximum in the list
+            Returns maximum tuple in the list
         """
-        sorted_list = sorted(indiceslist, key=lambda x: x[0], reverse=True)
+        sorted_list = sorted(indiceslist, key=lambda x: x[0], reverse=True) # First element is the maximum drawdown because of reverse
         highest = sorted_list[0]
         return highest

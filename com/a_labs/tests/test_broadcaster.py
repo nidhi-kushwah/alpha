@@ -17,6 +17,7 @@ import threading
 class TestDataBroadcaster(unittest.TestCase):
 
     def setUp(self):
+        """ Test with 50 messages ->25 trade+25 orderbook for verification"""
         self.broadcaster = DataBroadcaster()
         self.book_path = "resources/orderbook.csv"
         self.trade_path = "resources/executed_trade.csv"

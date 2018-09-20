@@ -31,6 +31,7 @@ class TestDrawDown(unittest.TestCase):
         val = self.calc.find_drawdown(arr3, 3)
         self.assertEqual(val, [])
 
+        ## Self made
         arr4 = [2,7,3,9,10,2,1,10,11]
         val = self.calc.find_drawdown(arr4, 2)
         self.assertEqual([(9, 4, 8, 4, 2), (4, 1, 4, 3, 2)],val)

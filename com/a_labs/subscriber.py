@@ -21,9 +21,17 @@ class Subscriber():
         self.number_of_messages = 0
 
     def get_number_of_messages(self):
+        """
+        Test if all messages are received or not
+        :return:
+        """
         return self.number_of_messages
 
     def reset_number_of_messages(self):
+        """
+        Resetter
+        :return:
+        """
         self.number_of_messages = 0
 
     def wait_on_topic(self, iterations=None):

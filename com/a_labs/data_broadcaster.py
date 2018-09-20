@@ -22,6 +22,12 @@ class DataBroadcaster:
         self.topic = "Sample_Topic"
 
     def __read_merge_and_sort_data(self, book_path, trade_path) -> dask.dataframe:
+        """
+        Read,Merge & Sort
+        :param book_path:
+        :param trade_path:
+        :return:
+        """
         df_bu_book = dd.read_csv(book_path)
         print("Length of df_bu_book: {}".format(len(df_bu_book)))
         df_bu_trade = dd.read_csv(trade_path)
@@ -33,7 +39,39 @@ class DataBroadcaster:
         print("length of merged is: {}".format(len(final[0])))
         return final[0]
 
-    # def sort_based_on_time(self):
+    def __publish(self, record):
+        """
+        Publish to ZMQ
+        :param record:
+        :return:
+        """
+        if record is not None:
+            self.publisher.publish_message(self.topic, record)
+
+    def broadcast_data(self, book_path, trade_path):
+        """
+        Broadcast API
+        :param book_path:
+        :param trade_path:
+        :return:
+        """
+        print("About to broadcast now...")
+        merged_data_frame = self.__read_merge_and_sort_data(book_path,trade_path)
+        for index in range(len(merged_data_frame.values) - 1):
+            print("Index at: ", index)
+            record = merged_data_frame.values[index]
+            self.__publish(record)
+            time_to_sleep = (merged_data_frame.values[index + 1][1] - merged_data_frame.values[index][1]) / 1000
+            print("Sleeping for {} seconds".format(time_to_sleep))
+            time.sleep(time_to_sleep)
+        print("Last message index {}".format(len(merged_data_frame.values) - 1))
+        self.__publish(merged_data_frame.values[len(merged_data_frame.values) - 1])
+
+# if __name__ == '__main__':
+#     b = DataBroadcaster()
+#     b.broadcast_data(book_path="resources/orderbook.csv", trade_path="resources/executed_trade.csv")
+
+# def sort_based_on_time(self):
     #     import csv
     #     import operator
     #     merged = open("merged.csv", 'r')
@@ -41,25 +79,3 @@ class DataBroadcaster:
     #     sort = sorted(merged_data, key=operator.itemgetter(1))
     #     for each_record in sort:
     #         self.broadcast(each_record[1])
-
-
-    def publish(self,record):
-        if record is not None:
-            self.publisher.publish_message(self.topic, record)
-
-    def broadcast_data(self, book_path, trade_path):
-        print("About to broadcast now...")
-        merged_data_frame = self.__read_merge_and_sort_data(book_path,trade_path)
-        for index in range(len(merged_data_frame.values) - 1):
-            print("Index at: ", index)
-            record = merged_data_frame.values[index]
-            self.publish(record)
-            time_to_sleep = (merged_data_frame.values[index + 1][1] - merged_data_frame.values[index][1]) / 1000
-            print("Sleeping for {} seconds".format(time_to_sleep))
-            time.sleep(time_to_sleep)
-        print("Last message index {}".format(len(merged_data_frame.values) - 1))
-        self.publish(merged_data_frame.values[len(merged_data_frame.values) - 1])
-
-# if __name__ == '__main__':
-#     b = DataBroadcaster()
-#     b.broadcast_data(book_path="resources/orderbook.csv", trade_path="resources/executed_trade.csv")
