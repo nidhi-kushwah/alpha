@@ -9,7 +9,7 @@ In both cases the numbers of interest are highest and lowest which the functions
 # Broadcaster
 
 I am using Dask dataframe as the dataset is quite large so to make use of all cores of the CPU dask is one of the best option.
-The task could also have been accomplished by using a csv reader to read bothe the csv files and populate the data into a table in sqlite which integrates easily with python3.
+The task could also have been accomplished by using a csv reader to read both the csv files and populate the data into a table in sqlite which integrates easily with python3.
 Once in DB the sorting operation could have been easily done and then all that is required is to iterate through the table and publish the records to ZMQ by checking the time
 delay.
 
