@@ -25,7 +25,7 @@ class DrawDownCalculator():
                 lowest_location_tuple = self.find_lowest_trough_until_next_rise(array, current_index, search_from_location)
                 lowest = lowest_location_tuple[0]
                 lowest_location = lowest_location_tuple[1]
-                highest, highest_location = self.find_highest_until_next_fall(array, current_index, lowest_location)
+                highest, highest_location = self.find_highest_peak_until_next_fall(array, current_index, lowest_location)
                 v_completed = True
                 if v_completed:
                     drawdown_list.append((current_index-lowest,search_from_location, highest_location,highest_location-search_from_location, highest_location-lowest_location))
@@ -34,11 +34,11 @@ class DrawDownCalculator():
             else:
                 ## It is Rising Falling Rising type N ->
                 # find the peak
-                highest_tuple = self.find_highest_until_next_fall(array, current_index, search_from_location)
+                highest_tuple = self.find_highest_peak_until_next_fall(array, current_index, search_from_location)
                 highest1 = highest_tuple[0]
                 highest_location1 = highest_tuple[1]
                 lowest, lowest_location = self.find_lowest_trough_until_next_rise(array, highest1, highest_location1)
-                highest_tuple = self.find_highest_until_next_fall(array, current_index, lowest_location)
+                highest_tuple = self.find_highest_peak_until_next_fall(array, current_index, lowest_location)
                 highest2 = highest_tuple[0]
                 highest_location2 = highest_tuple[1]
                 v_completed = True
@@ -49,7 +49,7 @@ class DrawDownCalculator():
         drawdown_list = sorted(drawdown_list, key=lambda x: x[0], reverse=True)
         return drawdown_list[:number_of_drawdowns]
 
-    def find_highest_until_next_fall(self, array, current_high, search_from_location):
+    def find_highest_peak_until_next_fall(self, array, current_high, search_from_location):
         list_of_highs = list()
         tracker = search_from_location+1
         for tracker in range(search_from_location+1, len(array)):
